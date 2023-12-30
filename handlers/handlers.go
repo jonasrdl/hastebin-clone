@@ -89,21 +89,21 @@ func (h *PasteHandler) GetPaste(c *gin.Context) {
 	// Check if Authorization header is present
 	authHeader := c.GetHeader("Authorization")
 	if authHeader == "" {
-		// If not present, return a 401 Unauthorized
-		c.Header("WWW-Authenticate", `Basic realm="Paste Authorization"`)
-		c.AbortWithStatus(http.StatusUnauthorized)
-		return
-	}
-
-	_, password, ok := c.Request.BasicAuth()
-	if !ok {
-		c.AbortWithStatus(http.StatusUnauthorized)
-		return
-	}
-
-	if password != paste.Password {
-		c.AbortWithStatus(http.StatusUnauthorized)
-		return
+		// If not present, check for the password query parameter
+		queryPassword := c.Request.URL.Query().Get("password")
+		if queryPassword == "" || queryPassword != paste.Password {
+			// If no password query parameter is provided, or it doesn't match the paste password, return a 401 Unauthorized
+			c.Header("WWW-Authenticate", `Basic realm="Paste Authorization"`)
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+	} else {
+		// If Authorization header is present, check for basic auth
+		_, password, ok := c.Request.BasicAuth()
+		if !ok || password != paste.Password {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
 	}
 
 	c.Header("Content-Type", "text/plain")
