@@ -9,6 +9,7 @@ import (
 )
 
 func main() {
+	dbHost := os.Getenv("DB_HOST")
 	dbUser := os.Getenv("DB_USER")
 	dbPass := os.Getenv("DB_PASS")
 	dbName := os.Getenv("DB_NAME")
@@ -19,7 +20,7 @@ func main() {
 		dbPort = "3306"
 	}
 
-	dbConnectionString := fmt.Sprintf("%s:%s@tcp(127.0.0.1:%s)/%s?parseTime=true", dbUser, dbPass, dbPort, dbName)
+	dbConnectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", dbUser, dbPass, dbHost, dbPort, dbName)
 
 	db, err := sql.Open("mysql", dbConnectionString)
 	if err != nil {
