@@ -12,6 +12,7 @@ func main() {
 	dbUser := os.Getenv("DB_USER")
 	dbPass := os.Getenv("DB_PASS")
 	dbName := os.Getenv("DB_NAME")
+	apiKey := os.Getenv("API_KEY")
 
 	dbPort := os.Getenv("DB_PORT")
 	if dbPort == "" {
@@ -47,7 +48,7 @@ func main() {
 
 	r := gin.Default()
 
-	pasteHandler := handlers.NewPasteHandler(db)
+	pasteHandler := handlers.NewPasteHandler(db, apiKey)
 
 	api := r.Group("/")
 	{

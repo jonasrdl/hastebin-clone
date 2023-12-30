@@ -14,16 +14,30 @@ import (
 )
 
 type PasteHandler struct {
-	DB *sql.DB
+	DB     *sql.DB
+	APIKey string
 }
 
-func NewPasteHandler(db *sql.DB) *PasteHandler {
+func NewPasteHandler(db *sql.DB, apiKey string) *PasteHandler {
 	return &PasteHandler{
-		DB: db,
+		DB:     db,
+		APIKey: apiKey,
 	}
 }
 
 func (h *PasteHandler) CreatePaste(c *gin.Context) {
+	// Check if Authorization header is present and matches the API key
+	authHeader := c.GetHeader("Authorization")
+	if authHeader == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "API Key is required"})
+		return
+	}
+
+	if authHeader != h.APIKey {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid API Key"})
+		return
+	}
+
 	var paste models.Paste
 	if err := c.BindJSON(&paste); err != nil {
 		fmt.Printf("invalid input: %v", err)
