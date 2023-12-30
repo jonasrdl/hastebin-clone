@@ -75,13 +75,19 @@ func (h *PasteHandler) GetPaste(c *gin.Context) {
 	// Check if Authorization header is present
 	authHeader := c.GetHeader("Authorization")
 	if authHeader == "" {
-		// If not present, return a 401 Unauthorized with the static nonce
-		nonce, err := generatePassword(10) // Use a different nonce for every request
-		if err != nil {
-			fmt.Printf("error generating nonce: %v", err)
-			return
-		}
-		c.Header("WWW-Authenticate", `Basic realm="Paste Authorization", nonce="`+nonce+`"`)
+		// If not present, return a 401 Unauthorized
+		c.Header("WWW-Authenticate", `Basic realm="Paste Authorization"`)
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+
+	_, password, ok := c.Request.BasicAuth()
+	if !ok {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+
+	if password != paste.Password {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
