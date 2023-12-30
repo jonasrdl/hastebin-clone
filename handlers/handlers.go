@@ -52,14 +52,8 @@ func (h *PasteHandler) CreatePaste(c *gin.Context) {
 		return
 	}
 
-	location, err := time.LoadLocation("Europe/Berlin")
-	if err != nil {
-		fmt.Printf("error loading CET timezone: %v", err)
-		return
-	}
-
 	paste.ID = uuid.New().String()
-	paste.CreatedAt = time.Now().In(location)
+	paste.CreatedAt = time.Now().Add(time.Hour)
 	paste.Password = password
 
 	// Insert the paste into the database
