@@ -3,6 +3,7 @@ package handlers
 import (
 	"crypto/rand"
 	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
@@ -76,7 +77,7 @@ func (h *PasteHandler) GetPaste(c *gin.Context) {
 	err := h.DB.QueryRow(`
 		SELECT ID, Content, CreatedAt, Password FROM pastes WHERE ID = ?
 	`, id).Scan(&paste.ID, &paste.Content, &paste.CreatedAt, &paste.Password)
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		fmt.Printf("paste not found: %v", err)
 		c.JSON(http.StatusNotFound, gin.H{"error": "Paste not found"})
 		return
